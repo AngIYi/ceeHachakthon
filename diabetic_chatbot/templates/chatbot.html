@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIA Guard Assistant - User</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+
+        #userInfo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #chatbox {
+            width: 90%;
+            max-width: 600px;
+            height: 300px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            overflow-y: scroll;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #chatbox p {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+        }
+
+        #chatbox p strong {
+            color: #4CAF50;
+        }
+
+        #questions {
+            width: 90%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        .question-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            text-align: left;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .question-button:hover {
+            background-color: #45a049;
+        }
+
+        #userInput, #otherQuestionInput {
+            width: 90%;
+            max-width: 600px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            display: none; /* Hidden by default */
+        }
+
+        #sendButton, #sendOtherQuestionButton {
+            width: 90%;
+            max-width: 600px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: none; /* Hidden by default */
+            transition: background-color 0.3s ease;
+        }
+
+        #sendButton:hover, #sendOtherQuestionButton:hover {
+            background-color: #45a049;
+        }
+
+        #liveChatWidget {
+            width: 90%;
+            max-width: 600px;
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: none; /* Hidden by default */
+        }
+
+        #liveChatMessages {
+            height: 200px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        #liveChatInput {
+            width: calc(100% - 90px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #liveChatSendButton {
+            width: 80px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        #liveChatSendButton:hover {
+            background-color: #45a049;
+        }
+
+        /* Quiz Container Styles */
+        #quizContainer {
+            display: none; /* Hidden by default */
+            width: 90%;
+            max-width: 600px;
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #quizContainer h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        #quizContainer p {
+            font-size: 18px;
+            color: #555;
+        }
+
+        #quizContainer ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #quizContainer li {
+            margin: 10px 0;
+        }
+
+        #quizContainer button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #quizContainer button:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Marks Display */
+        #marksDisplay {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div id="userInfo">
+    <span id="usernameDisplay">{{ current_user.username }}</span>
+    <button onclick="logout()">Logout</button>
+</div>
+<h1>DIA Guard Assistant - User</h1>
+
+<div id="marksDisplay">Marks: 0</div> <!-- Marks Display (Always Visible) -->
+<div id="chatbox"></div>
+<div id="questions">
+    <button class="question-button" onclick="sendMessage('What is diabetes?')">What is diabetes?</button>
+    <button class="question-button" onclick="sendMessage('Symptoms of diabetes')">Symptoms of diabetes</button>
+    <button class="question-button" onclick="sendMessage('How to prevent diabetes?')">How to prevent diabetes?</button>
+    <button class="question-button" onclick="sendMessage('Real Person Assistant')">Real Person Assistant</button>
+    <button class="question-button" onclick="toggleOtherQuestionInput()">Other Question</button>
+    <button class="question-button" onclick="startQuiz()">Start Quiz</button> <!-- Quiz Button -->
+</div>
+<input type="text" id="userInput" placeholder="Type your message here...">
+<button id="sendButton" onclick="sendMessageFromInput()">Send</button>
+
+<!-- Other Question Input -->
+<input type="text" id="otherQuestionInput" placeholder="Type your question here...">
+<button id="sendOtherQuestionButton" onclick="sendOtherQuestion()">Send</button>
+
+<!-- Live Chat Widget -->
+<div id="liveChatWidget">
+    <p><strong>Live Chat:</strong> Please describe your concern below.</p>
+    <div id="liveChatMessages"></div>
+    <input type="text" id="liveChatInput" placeholder="Type your message here...">
+    <button id="liveChatSendButton" onclick="sendLiveChatMessage()">Send</button>
+</div>
+
+<!-- Quiz Container -->
+<div id="quizContainer">
+    <h1>Diabetes Quiz</h1>
+    <p id="quizQuestion"></p>
+    <ul id="quizOptions"></ul>
+    <button id="quizNextButton" onclick="nextQuestion()">Next Question</button> <!-- Updated Next Question Button -->
+    <button id="quizEndButton" onclick="endQuiz()">End Quiz</button> <!-- End Quiz Button -->
+    <div class="result" id="quizResult"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    const socket = io();
+    let isAssistantMode = false;
+
+    // Fetch and display marks on page load
+    fetch("/get_marks")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("marksDisplay").textContent = `Marks: ${data.marks}`;
+        });
+
+    // Register as a user
+    socket.emit('register_user');
+
+    // Handle incoming messages from the agent
+    socket.on('user_message', function(data) {
+        const chatbox = document.getElementById("liveChatMessages");
+        chatbox.innerHTML += `<p><strong>Agent:</strong> ${data.message}</p>`;
+        chatbox.scrollTop = chatbox.scrollHeight;
+    });
+
+    // Display the username after login
+    document.getElementById("usernameDisplay").textContent = "{{ current_user.username }}";
+
+    // Logout function
+    function logout() {
+        fetch("/logout", {
+            method: "GET",
+        }).then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            }
+        });
+    }
+
+    // Quiz Logic
+    let currentQuestionIndex = 0;
+    let userScore = 0;
+    const quizQuestions = [
+        {
+            question: "What is a common symptom of diabetes?",
+            options: ["Fever", "Blurred vision", "Cough", "Headache"],
+            answer: "Blurred vision"
+        },
+        {
+            question: "Which food should be avoided to prevent diabetes?",
+            options: ["Vegetables", "Sugar", "Whole grains", "Nuts"],
+            answer: "Sugar"
+        },
+        {
+            question: "How much exercise is recommended per week to prevent diabetes?",
+            options: ["30 minutes", "60 minutes", "90 minutes", "150 minutes"],
+            answer: "150 minutes"
+        }
+    ];
+
+    function startQuiz() {
+        document.getElementById("questions").style.display = "none";
+        document.getElementById("quizContainer").style.display = "block";
+        loadQuizQuestion(currentQuestionIndex);
+    }
+
+    function loadQuizQuestion(index) {
+        const question = quizQuestions[index];
+        document.getElementById("quizQuestion").textContent = question.question;
+        const optionsList = document.getElementById("quizOptions");
+        optionsList.innerHTML = "";
+        question.options.forEach((option, i) => {
+            const li = document.createElement("li");
+            const button = document.createElement("button");
+            button.textContent = option;
+            button.onclick = () => submitQuizAnswer(option);
+            li.appendChild(button);
+            optionsList.appendChild(li);
+        });
+    }
+
+    function submitQuizAnswer(answer) {
+        const question = quizQuestions[currentQuestionIndex];
+        if (answer === question.answer) {
+            fetch("/quiz", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ answer: answer, question_index: currentQuestionIndex }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("marksDisplay").textContent = `Marks: ${data.marks}`;
+                    document.getElementById("quizResult").textContent = "Correct! 🎉"; // Display correct message
+                });
+        } else {
+            document.getElementById("quizResult").textContent = `Incorrect. 😢 The correct answer is: ${question.answer}`; // Display incorrect message
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizQuestions.length) {
+            loadQuizQuestion(currentQuestionIndex);
+            document.getElementById("quizResult").textContent = ""; // Clear result message
+        } else {
+            document.getElementById("quizNextButton").style.display = "none";
+            document.getElementById("quizResult").textContent = "Quiz completed! 🎉";
+        }
+    }
+
+    function endQuiz() {
+        document.getElementById("quizContainer").style.display = "none";
+        document.getElementById("questions").style.display = "block";
+        currentQuestionIndex = 0; // Reset quiz
+        document.getElementById("quizNextButton").style.display = "block"; // Show Next Question button again
+    }
+
+    // Chatbot Logic
+    function sendMessage(message) {
+        fetch("/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message: message }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                const chatbox = document.getElementById("chatbox");
+                chatbox.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+                if (data.response) {
+                    chatbox.innerHTML += `<p><strong>Chatbot:</strong> ${data.response}</p>`;
+                } else {
+                    chatbox.innerHTML += `<p><strong>Error:</strong> No response from server.</p>`;
+                }
+                if (data.redirect) {
+                    isAssistantMode = true;
+                    document.getElementById("questions").style.display = "none";
+                    document.getElementById("liveChatWidget").style.display = "block";
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const chatbox = document.getElementById("chatbox");
+                chatbox.innerHTML += `<p><strong>Error:</strong> Failed to fetch response.</p>`;
+            });
+    }
+
+    function sendMessageFromInput() {
+        const userInput = document.getElementById("userInput").value;
+        if (userInput.trim() !== "") {
+            if (isAssistantMode) {
+                socket.emit('user_message', { message: userInput });
+                const chatbox = document.getElementById("liveChatMessages");
+                chatbox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+                chatbox.scrollTop = chatbox.scrollHeight;
+            } else {
+                sendMessage(userInput);
+            }
+            document.getElementById("userInput").value = "";
+        }
+    }
+
+    function sendLiveChatMessage() {
+        const userInput = document.getElementById("liveChatInput").value;
+        if (userInput.trim() !== "") {
+            socket.emit('user_message', { message: userInput });
+            const chatbox = document.getElementById("liveChatMessages");
+            chatbox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+            chatbox.scrollTop = chatbox.scrollHeight;
+            document.getElementById("liveChatInput").value = "";
+        }
+    }
+
+    function toggleOtherQuestionInput() {
+        const input = document.getElementById('otherQuestionInput');
+        const button = document.getElementById('sendOtherQuestionButton');
+        if (input.style.display === 'block') {
+            input.style.display = 'none';
+            button.style.display = 'none';
+        } else {
+            input.style.display = 'block';
+            button.style.display = 'block';
+        }
+    }
+
+    function sendOtherQuestion() {
+        const question = document.getElementById('otherQuestionInput').value;
+        if (question.trim() !== '') {
+            sendMessage(question);
+            document.getElementById('otherQuestionInput').value = '';
+        }
+    }
+
+    document.getElementById('otherQuestionInput').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendOtherQuestion();
+        }
+    });
+
+    document.getElementById("userInput").addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessageFromInput();
+        }
+    });
+
+    document.getElementById("liveChatInput").addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendLiveChatMessage();
+        }
+    });
+</script>
+</body>
+</html>
