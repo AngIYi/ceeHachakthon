@@ -6,4 +6,5 @@ qa_database = {
     "blood sugar": "Blood sugar levels can be managed through diet, exercise, and medication.",
     "diet": "A healthy diet for diabetes includes whole grains, vegetables, and lean proteins.",
     "exercise": "Regular exercise helps control blood sugar levels and improves overall health."
+
 }
