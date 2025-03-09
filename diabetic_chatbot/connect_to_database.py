@@ -117,8 +117,56 @@ def fetch_app_user_data(user_id=None, patient_id=None,username=None):
     
   return patient_data
 
+# TEST
+
+"""
+keys:
+
+
+patient_id
+first_name
+last_name
+age
+height
+weight
+bmi
+entry_date
+avg_glucose
+basal_insulin
+basal_metabolic_rate
+daily_insulin_dose
+cgm_device
+glucose_monitoring_index
+std_dev_glucose
+variation_coefficient
+time_active
+time_in_range_high
+time_in_range_very_high
+time_in_range_low
+time_in_range_very_low
+time_in_range_normal
+time_in_range
+weight_category
+app_user_id
+"""
 test_patient = fetch_patient_by_id(1)
 print(f"[TEST] Patient name : {test_patient["first_name"]}")
+print(f"[TEST] Patient's daily insulin dose : {test_patient["daily_insulin_dose"]}")
 
+all_patients = fetch_all_patients()
+print(f"[TEST] All patients data : {all_patients}")
+
+
+"""
+keys:
+
+user_id
+patient_id
+username
+password
+points
+"""
 test_user = fetch_app_user_data(patient_id=3)
 print(f"[TEST] Patient username : {test_user["username"]}")
+print(f"[TEST] Patient password : {test_user["password"]}")
+print(f"[TEST] Points/Score for ths patient : {test_user["points"]}")
