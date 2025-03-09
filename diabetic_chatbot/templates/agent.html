@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIA Guard Assistant - Agent</title>
+    <style>
+        #chatbox {
+            width: 300px;
+            height: 350px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #agentInput {
+            width: 300px;
+            height: 100px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #agentSendButton {
+            width: 20%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: block;
+        }
+        #agentSendButton:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<h1>DIA Guard Assistant - Agent</h1>
+<div id="chatbox"></div>
+<input type="text" id="agentInput" placeholder="Type your message here...">
+<button id="agentSendButton" onclick="sendAgentMessage()">Send</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    const socket = io();
+
+    let currentUser = null;
+
+    socket.on('connect', () => {
+        console.log("Connected to server with socket ID:", socket.id);
+    });
+
+    socket.on('disconnect', () => {
+        console.log("Disconnected from server");
+    });
+
+    // Register as an agent
+    socket.emit('register_agent');
+    console.log("Agent registration request sent");
+
+    // Handle incoming messages from users
+    socket.on('agent_message', function(data) {
+        console.log("Received message from user:", data); // Debugging log
+        currentUser = data.user_id; // Store the user ID for replies
+        const chatbox = document.getElementById("chatbox");
+        chatbox.innerHTML += `<p><strong>User ${data.user_id}:</strong> ${data.message}</p>`;
+        chatbox.scrollTop = chatbox.scrollHeight;
+    });
+
+    function sendAgentMessage() {
+        const userInput = document.getElementById("agentInput").value;
+        if (userInput.trim() !== "" && currentUser) {
+            // Send the message to the user
+            socket.emit('agent_message', { user_id: currentUser, message: userInput });
+            const chatbox = document.getElementById("chatbox");
+            chatbox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+            chatbox.scrollTop = chatbox.scrollHeight;
+            document.getElementById("agentInput").value = ""; // Clear input field
+        }
+    }
+
+    // Allow pressing "Enter" to send a message
+    document.getElementById("agentInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission
+            sendAgentMessage();
+        }
+    });
+</script>
+</body>
+</html>
